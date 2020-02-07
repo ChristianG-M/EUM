@@ -1,0 +1,51 @@
+[
+    {
+        "Install":"apt",
+        "Kernel":"4.9",
+        "Name":"Debian",
+        "Owner":"SPI",
+        "Version":"9"
+    },
+    {
+        "Install":"apt",
+        "Kernel":"4.13",
+        "Name":"Ubuntu",
+        "Owner":"Canonical",
+        "Version":"17.10"
+    },
+    {
+        "Install":"dnf",
+        "Kernel":"4.13",
+        "Name":"Fedora",
+        "Owner":"Red Hat",
+        "Version":"26"
+    },
+    {
+        "Install":"yum",
+        "Kernel":"3.10",
+        "Name":"CentOS",
+        "Owner":"Red Hat",
+        "Version":"7"
+    },
+    {
+        "Install":"zypper",
+        "Kernel":"4.4",
+        "Name":"OpenSUSE",
+        "Owner":"Novell",
+        "Version":"42.3"
+    },
+    {
+        "Install":"pacman",
+        "Kernel":"4.13",
+        "Name":"Arch Linux",
+        "Owner":"SPI",
+        "Version":"Rolling Release"
+    },
+    {
+        "Install":"emerge",
+        "Kernel":"4.12",
+        "Name":"Gentoo",
+        "Owner":"Gentoo Foundation",
+        "Version":"Rolling Release"
+    }
+]

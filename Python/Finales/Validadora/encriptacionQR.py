@@ -35,10 +35,13 @@ class codificar():
         return limpiaPunto
 
     def decodeInfoQR(self, informacion):
-        decoded = base64.b64decode(informacion)
-        infoInString = str( decoded, 'utf-8')
-        print(infoInString, file=open("infoReadCoded.txt", "a"))
-        return infoInString
+        try:            
+            decoded = base64.b64decode(informacion)
+            infoInString = str( decoded, 'utf-8')
+            print(infoInString, file=open("infoReadCoded.txt", "a"))
+            return infoInString
+        except:
+            return -1
 
     def validarExist(self, infoIni, infoFin):
         if infoIni == infoFin:
@@ -52,19 +55,25 @@ class codificar():
             return False
 
     def calcularCR7(self, inFormacion):
-        strInformacion = str( inFormacion, 'utf-8')
-        CR7 = CRC16().calculate(strInformacion)
-        return str(CR7)
+        try:            
+            strInformacion = str( inFormacion, 'utf-8')
+            CR7 = CRC16().calculate(strInformacion)
+            return str(CR7)
+        except:
+            return -1
 
     def procesamiento(self,informacion):
-        infoTotal = informacion.split(',')
-        print(infoTotal[0])
-        print(infoTotal[1])
-        ticketQRLimpio = self.cleanCharQR( infoTotal[0] )
-        numberQRLimpio = self.cleanDotQR( infoTotal[1] )
-        CRC2 = self.calcularCR7(bytes(ticketQRLimpio, 'utf-8'))
-        ticketDecodificado = self.decodeInfoQR(ticketQRLimpio)
-        if(self.validarCR7s(numberQRLimpio, CRC2)):
-            return ticketDecodificado
-        else:
-            return False
+        try:
+            infoTotal = informacion.split(',')
+            print(infoTotal[0])
+            print(infoTotal[1])
+            ticketQRLimpio = self.cleanCharQR( infoTotal[0] )
+            numberQRLimpio = self.cleanDotQR( infoTotal[1] )
+            CRC2 = self.calcularCR7(bytes(ticketQRLimpio, 'utf-8'))
+            ticketDecodificado = self.decodeInfoQR(ticketQRLimpio)
+            if(self.validarCR7s(numberQRLimpio, CRC2)):
+                return ticketDecodificado
+            else:
+                return 0
+        except:
+            return -1

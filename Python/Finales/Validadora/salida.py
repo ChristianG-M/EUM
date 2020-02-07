@@ -6,6 +6,7 @@ import leerConfiguracionFechaHora as confFH
 import configuracionEXP as archivoConfiguracion
 import fechaUTC
 import os
+import os.path
 import sys
 import psycopg2
 from pygame import mixer
@@ -76,7 +77,7 @@ class Ui_ventanaAcceso(QDialog):
 
 	global gui,iface
 
-	def __init__(self):
+	def __init__(self):		
 		QDialog.__init__(self)
 		iface=1
 		gui = uic.loadUi("/home/cajero/Documentos/eum/app/salida/ventanas/rb.ui", self)
@@ -89,7 +90,7 @@ class Ui_ventanaAcceso(QDialog):
 		self.balza.clicked.connect(self.alza)
 		self.datosEstacionamiento()
 		self.bcamara.clicked.connect(self.scan)
-		#self.bcamara.setShortcut("Return")
+		#self.bcamara.setShortcut("Return")		
 		self.lscan.textChanged.connect(self.validacionScan)
 		
 		################MODS########
@@ -307,39 +308,40 @@ class Ui_ventanaAcceso(QDialog):
 	def validacionScan(self):
 		global leido
 		#thread3 = Thread(target=leerCodQR, args = ())
-		text=str(self.lscan.text())
-		if( '.' in text ):			
-			'''DL17'''
-			dencriptador = codificar()
-			print(text, file=open("TextoLeido.txt", "a"))
-			resultado = dencriptador.procesamiento(text)
-			print(resultado, file=open("TextoResultado.txt", "a"))
-			'''DL17'''
-			print(resultado)
-			inicioChar=resultado[:1]		
-			if inicioChar == "C":
-				if len(resultado) > 7:
-					if("CHT" in resultado):
-						leido = resultado
-						self.lscan.setText('')
-						print(resultado)
-						#leerArch = open("datos.txt", "w")
-						#leerArch.write(text)
-						#leerArch.close()
+		try:
+			text=str(self.lscan.text())		
+			if( '.' in text ):
+				'''DL17'''
+				dencriptador = codificar()
+				resultado = dencriptador.procesamiento(text)
+				'''DL17'''
+				inicioChar=resultado[:1]		
+				if inicioChar == "C":
+					if len(resultado) > 7:
+						if("CHT" in resultado):
+							leido = resultado
+							self.lscan.setText('')
+							print(resultado)
+							#leerArch = open("datos.txt", "w")
+							#leerArch.write(text)
+							#leerArch.close()
+						else:
+							leido = resultado
+							self.lscan.setText('')
+						#else:
+						#self.scan2()					
+				if "." in resultado:
+					inicioChar=resultado[:1]
+					if inicioChar == "M":
+						#text = text[1:-1:]
+						self.scan(resultado)
 					else:
-						leido = resultado
-						self.lscan.setText('')	
-					#else:
-					#self.scan2()					
-			if "." in resultado:
-				inicioChar=resultado[:1]
-				if inicioChar == "M":
-					#text = text[1:-1:]
-					self.scan(resultado)
-				else:
-					self.lscan.setText('')		
-			#text2char=text[:2]
-			#scan()
+						self.lscan.setText('')		
+				#text2char=text[:2]
+				#scan()
+		except:
+			print("Try again...")
+			self.lscan.setText('')
 
 	def scan2(self):
 		global leido
@@ -384,6 +386,7 @@ class Ui_ventanaAcceso(QDialog):
 			text=text.replace("'","-")
 			text=text.replace("Ñ",":")
 			text=text.split(',')
+			print(text, file=open("textSplit.txt", "a"))
 			#os.system("sudo nice -n -19 python3 archimp.py")
 			#os.system("sudo nice -n -19 python3 archimp.py")
 			try:
@@ -451,7 +454,7 @@ class Ui_ventanaAcceso(QDialog):
 	def alza(self):
 		botones.configurarPinesGPIO()
 		botones.configurarPinesGPIOBobina()
-		botones.abrir()		
+		botones.abrir()	
 
 	def leerBotones(self):
 		global leyendaCandado,espera,pantalla_cont,reproduccion,red,green,blue,rrr,iface,tolerancia,gerencia,sucursal_id, leido, validacion, estado
@@ -718,6 +721,28 @@ class Ui_ventanaAcceso(QDialog):
 	def apagarRasp(self):
 		os.system("sudo shutdown 0")
 
+	def validarConf(self):
+		if(os.path.exists("keyboard.conf")):
+			f=open("keyboard.conf", "r")
+			contents =f.read()
+			if('1' in contents):
+				configurado = "Ya esta configurado"
+				return True
+			else:				
+				print("Configurando...")
+				self.confMetodTeclado()
+		else:				
+			print("Configurando...")
+			self.confMetodTeclado()
+
+	def confMetodTeclado(self):		
+		command = 'dpkg-reconfigure keyboard-configuration'
+		p = os.system('sudo -S %s' % (command))
+		print(1, file=open("keyboard.conf", "a"))
+		command = 'reboot'
+		p = os.system('sudo -S %s' % (command))
+		return True
+
 def obtenerPlazaYLocalidad():
 	pass
 
@@ -924,7 +949,7 @@ def activarFuncion():
 	ui.show()
 	app.exec_()
 
-if __name__ == "__main__":
+if __name__ == "__main__":	
 	hilos()
 	obtenerIdSal()
 	conexion = Conexiones()

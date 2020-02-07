@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+'''DL17'''
 import base64
 import qrcode
 from CRC16 import CRC16
@@ -23,12 +24,16 @@ class codificar():
         return nombre
 
     def cleanCharQR( self, ticketQR ):
-        limpiaAdmiracion = ticketQR.replace( '¿', '+' )
+        limpiaAdmiracion = ticketQR.replace( '¿', '=' )
         limpiaComillas = limpiaAdmiracion.replace( "'", '-' )
-        limpiaInterrogacion = limpiaComillas.replace( '¡', '=' )
+        limpiaInterrogacion = limpiaComillas.replace( '¡', '+' )
         ticketQRFinal = limpiaInterrogacion
         print(ticketQRFinal, file=open("infoRead.txt", "a"))
         return ticketQRFinal
+
+    def cleanDotQR( self, ticketQR ):
+        limpiaPunto = ticketQR.replace( '.', '' )
+        return limpiaPunto
 
     def decodeInfoQR(self, informacion):
         decoded = base64.b64decode(informacion)
@@ -53,20 +58,29 @@ class codificar():
         return str(CR7)
 
     def procesamiento(self,informacion):
-        infoTotal = informacion.split(',')
-        ticketQRLimpio = self.cleanCharQR( infoTotal[0] )
-        CRC2 = self.calcularCR7(bytes(ticketQRLimpio, 'utf-8'))
-        ticketDecodificado = self.decodeInfoQR(ticketQRLimpio)
-        if(self.validarCR7s(infoTotal[1], CRC2)):
-            return ticketDecodificado
-        else:
-            return False
+        try:            
+            infoTotal = informacion.split(',')
+            print(infoTotal[0])
+            print(infoTotal[1])
+            ticketQRLimpio = self.cleanCharQR( infoTotal[0] )
+            numberQRLimpio = self.cleanDotQR( infoTotal[1] )
+            CRC2 = self.calcularCR7(bytes(ticketQRLimpio, 'utf-8'))
+            ticketDecodificado = self.decodeInfoQR(ticketQRLimpio)
+            if(self.validarCR7s(numberQRLimpio, CRC2)):
+                return ticketDecodificado
+            else:
+                return 0
+        except:
+            return -1
 
 def main():
-    codificador = codificar()
-    read = str(input("Ingrese ticket QR:"))
-    resultado = codificador.procesamiento(read)
-    print(resultado)
+    teclado = confTeclado()
+    tecladoInfo = teclado.validarConf()
+    if( tecladoInfo ):
+        codificador = codificar()        
+        read = str(input("Ingrese ticket QR:"))
+        resultado = codificador.procesamiento(read)
+        print(resultado)
 
 
 if __name__ == "__main__":

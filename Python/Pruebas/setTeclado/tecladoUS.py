@@ -22,11 +22,15 @@ class confTeclado():
 			self.confMetodTeclado()
 
 	def confMetodTeclado(self):		
-		command = 'dpkg-reconfigure keyboard-configuration'
-		p = os.system('sudo -S %s' % (command))
+		copyBkp = 'cp /etc/default/keyboard /etc/default/keyboard.old'
+		p = os.system('sudo -S %s' % (copyBkp))
+		check = 'ls /etc/default/'
+		q = os.system('sudo -S %s' % (check))
+		copyUS = 'cp ./keyboard /etc/default/'
+		r = os.system('sudo -S %s' % (copyUS))
 		print(1, file=open("keyboard.conf", "a"))
 		command = 'reboot'
-		p = os.system('sudo -S %s' % (command))
+		s = os.system('sudo -S %s' % (command))
 		return True
 
 def main():
