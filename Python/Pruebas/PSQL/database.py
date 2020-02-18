@@ -1,15 +1,15 @@
 #!/usr/bin/python3
 import psycopg2
 import json
+import os.path
 
-# Postgres
-PSQL_HOST = "127.0.0.1"
-PSQL_PORT = "5432"
-PSQL_USER = "postgres"
-PSQL_PASS = "root"
-PSQL_DB   = "CajerOk"
+class database():
+	def __init__(self):
+		pass
 
-data = '{\
+
+	def createJson(self):
+		data = '{\
 	"GENERAL":[{\
 		"id":4,\
 		"id_sucursal":3,\
@@ -85,71 +85,115 @@ data = '{\
 	}]\
 }'
 
-try:
-	z = json.loads(data)
-	with open('config.json','w') as f:
-		json.dump(z, f, indent=4) 
-except:
-	print("Error al crear archivo inicial")
+		try:
+			z = json.loads(data)
+			with open('config.json','w') as f:
+				json.dump(z, f, indent=4)
+			if(os.path.exists('config.json')):
+				return 0
+			else:
+				return -1
+		except:
+			return -1
 
 
-try:
-	connstr = "host=%s port=%s user=%s password=%s dbname=%s" % (PSQL_HOST, PSQL_PORT, PSQL_USER, PSQL_PASS, PSQL_DB)
-	conn = psycopg2.connect(connstr)
-	cur = conn.cursor()
-	sqlquery = "SELECT * FROM public.\"TARIFA\" ORDER BY \"idTarifa\" ASC"
-	cur.execute(sqlquery)
-	columns = [column[0] for column in cur.description]
-	results = []
-	for row in cur.fetchall():
-	    results.append(dict(zip(columns, row)))
-	#print(results)
-	cur.close()
-	conn.close()
+	def connectDB(self, host, port, user, password, db):
+		try:
+			connstr = "host=%s port=%s user=%s password=%s dbname=%s" % (host, port, user, password, db)
+			conn = psycopg2.connect(connstr)
+			cur = conn.cursor()
+			sqlquery = "SELECT * FROM public.\"TARIFA\" ORDER BY \"idTarifa\" ASC"
+			cur.execute(sqlquery)
+			columns = [column[0] for column in cur.description]
+			results = []
+			for row in cur.fetchall():
+				results.append(dict(zip(columns, row)))	
+			cur.close()
+			conn.close()
+			return results
+		except:
+			return -1
 
 
-	fields = [
-	    'idTarifa',
-	    'plaza',
-	    'fec_ini',
-	    'fec_fin',
-	    'hor_ini',
-	    'hor_fin',
-	    'dia_sem',
-	    'des_tar',
-	    'costo',
-	    'int_1',
-	    'int_2',
-	    'estado',
-	    'prioridad',
-	    'descuento'
-	]
+	def addTarifas(self, results):
+		fields = [
+			'idTarifa',
+		    'plaza',
+		    'fec_ini',
+		    'fec_fin',
+		    'hor_ini',
+		    'hor_fin',
+		    'dia_sem',
+		    'des_tar',
+		    'costo',
+		    'int_1',
+		    'int_2',
+		    'estado',
+		    'prioridad',
+		    'descuento'
+		]
 
-	my_data = []
+		my_data = []
+		try:
+			for item in results:
+				my_data = [item[field] for field in fields]
+				if(os.path.exists('config.json')):
+					with open('config.json') as json_file:
+						data = json.load(json_file)
+				else:
+					print("No existe el archivo")
 
-	for item in results:
-		my_data = [item[field] for field in fields]	
-		with open('config.json') as json_file: 
-			data = json.load(json_file)
+				temp = data['TARIFAS']
+				temp.append({
+					fields[0]:my_data[0],
+					fields[1]:my_data[1],
+					fields[2]:my_data[2],
+					fields[3]:my_data[3],
+					fields[4]:my_data[4],
+					fields[5]:my_data[5],
+					fields[6]:my_data[6],
+					fields[7]:my_data[7],
+					fields[8]:my_data[8],
+					fields[9]:my_data[9],
+					fields[10]:my_data[10],
+					fields[11]:my_data[11],
+					fields[12]:my_data[12],
+					fields[13]:my_data[13]
+			  	})
 
-		temp = data['TARIFAS']
-		temp.append({
-			fields[0]:my_data[0],
-			fields[1]:my_data[1],
-			fields[2]:my_data[2],
-			fields[3]:my_data[3],
-			fields[4]:my_data[4],
-			fields[5]:my_data[5],
-			fields[6]:my_data[6],
-			fields[7]:my_data[7],
-			fields[8]:my_data[8],
-			fields[9]:my_data[9],
-			fields[10]:my_data[10],
-			fields[11]:my_data[11],
-			fields[12]:my_data[12],
-			fields[13]:my_data[13]
-		  })
-		with open('config.json','w') as f: 
-			json.dump(data, f, indent=4)
-except:
-	print("Error de base de datos")
+				if(os.path.exists('config.json')):
+					with open('config.json','w') as f:
+						json.dump(data, f, indent=4)
+				else:
+					return -1
+			return 0
+		except:
+			return -1
+
+
+def main():
+	try:
+		newConfig = database()
+		if(not(newConfig.createJson())):
+			print("Archivo creado correctamente")
+		else:
+			print("Error al crear archivo")
+
+		host = "127.0.0.1"
+		port = "5432"
+		user = "postgres"
+		password = "root"
+		db   = "CajerOk"
+
+		resultado = newConfig.connectDB(host, port, user, password, db)
+
+		if(not(newConfig.addTarifas(resultado))):
+			print("Tarifas agregadas correctamente")
+		else:
+			print("Error al agregar tarifas")
+	except Exception as error:
+		print ("Exception:", error)
+
+
+if __name__ == "__main__":
+	main()
