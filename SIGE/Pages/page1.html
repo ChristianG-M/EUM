@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+    <head>
+            <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+    </head>
+<body>
+<div id="popUp">
+    <p>Set your username:</p>
+    <input type="text" name="setusername" id="userSet">
+    <input type="button" id="save" name="s" value="s"/>
+</div>
+<script>
+$(document).ready(function(){
+    $("#save").click(function(){
+        var valor = $("#userSet").val();
+        if (typeof(Storage) !== "undefined") {
+            localStorage.setItem("user", valor);
+        } else {
+            $("#Uname").val("Sorry, your browser does not support Web Storage...");
+       }
+    });
+});
+</script>
+ 
+</body>
+</html>

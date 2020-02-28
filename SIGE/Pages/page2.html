@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<body>
+ 
+<div id="result"></div>
+ 
+<script>
+// Check browser support
+if (typeof(Storage) !== "undefined") {
+// Retrieve
+document.getElementById("result").innerHTML = localStorage.getItem("user");
+} else {
+document.getElementById("result").innerHTML = "Browser does not support Web Storage.";
+}
+</script>
+ 
+</body>
+</html>
+
+
+
+
+
+<script>
+// Check browser support
+if (typeof(Storage) !== "undefined") {
+// Retrieve
+document.getElementById("sucursalName").innerHTML = localStorage.getItem("sucursal");
+} else {
+document.getElementById("sucursalName").innerHTML = "Browser does not support Web Storage.";
+}
+</script>
